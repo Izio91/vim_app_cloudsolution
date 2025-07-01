@@ -3691,7 +3691,7 @@ sap.ui.define([
             oDetailDetailModel.setProperty("/errorLog", record.ErrorLog);
             delete record.ErrorLog
             
-            if (oDetailDetailModel.getProperty("/detail/header/DOC_STATUS") !== 'POSTED') {
+            if (!record.PostingDate && oDetailDetailModel.getProperty("/detail/header/DOC_STATUS") !== 'POSTED') {
               record.PostingDate = this.getCurrentDate();
             }
 
