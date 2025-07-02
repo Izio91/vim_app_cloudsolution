@@ -104,6 +104,12 @@
 
                                                 <m:Label text="{i18n>InvoicingPartyVendorCode}" />
                                                 <m:Input id="idInvoicingPartyVendorCode" value="{detailDetailModel>/currentInvoice/InvoicingParty}" change=".onChangeInvoicingParty" maxLength="10"/>
+
+                                                <m:Label text="{i18n>Vat}" />
+                                                <m:Input id="idVat" value="{detailDetailModel>/currentInvoice/Vat}" editable="false"/>
+
+                                                <m:Label text="{i18n>SupplierName}" />
+                                                <m:Input id="idSupplierName" value="{detailDetailModel>/currentInvoice/SupplierName}" editable="false"/>
                                                 
                                                 <m:Label text="{i18n>Currency}" required="true" />
                                                 <m:Input id="idCurrency" change=".onChangeCurrency" value="{detailDetailModel>/currentInvoice/Currency}" maxLength="5"/>

@@ -76,6 +76,10 @@ sap.ui.define([
       return text;
     },
 
+    formatDocumentTitle: function(sText, iCount) {
+      return sText + " " + iCount;
+    },
+
     formatDateString: function (sDate) {
       // "2020-05-11T14:00:00.000Z" -> May 11th 2020, 1:00PM
       if (sDate) {

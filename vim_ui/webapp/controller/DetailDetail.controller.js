@@ -5310,6 +5310,8 @@ sap.ui.define([
       var body = {}; // Initialize request body
       var sUrl = baseManifestUrl + `/odata/save`; // API endpoint for saving data
       var oCurrentInvoice = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice");
+      delete oCurrentInvoice.Vat;
+      delete oCurrentInvoice.SupplierName;
       delete oCurrentInvoice.To_SelectedPurchaseOrders;
       delete oCurrentInvoice.To_SelectedDeliveryNotes;
       delete oCurrentInvoice.To_SelectedServiceEntrySheets;
@@ -5429,6 +5431,8 @@ sap.ui.define([
 
       // Retrieve the current invoice data from the model
       var oCurrentInvoice = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice");
+      delete oCurrentInvoice.Vat;
+      delete oCurrentInvoice.SupplierName;
       delete oCurrentInvoice.AmountSummary;
       // Build the request payload
       body = {

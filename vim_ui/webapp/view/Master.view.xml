@@ -132,6 +132,15 @@
                 width="auto">
                 <headerToolbar>
                     <OverflowToolbar >
+                        <Title
+                            text="{
+                                parts: [
+                                {path: 'i18n>NumberOfDocuments'},
+                                {path: 'masterModel>/count'}
+                                ],
+                                formatter: '.formatDocumentTitle'
+                            }"
+                            level="H2"/>
                         <ToolbarSpacer/>
                         <Button id="quickMassiveActionButton" icon="sap-icon://edit" text="{i18n>QuickMassiveEdit}" enabled="false" press="onQuickMassiveEditPress" tooltip="{i18n>MassiveActionTooltip}"/>
                     </OverflowToolbar>
