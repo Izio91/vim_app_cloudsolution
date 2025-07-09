@@ -421,9 +421,9 @@ sap.ui.define([
                 bEnableQuickMassiveEdit = aItems.length > 1;
             oTable.getItems().forEach(oItem => {
                 if (aItems.length > 1) {
-                    oItem.getAggregation("cells")[8].setEnabled(false);
+                    oItem.getAggregation("cells")[11].setEnabled(false);
                 } else {
-                    oItem.getAggregation("cells")[8].setEnabled(true);
+                    oItem.getAggregation("cells")[11].setEnabled(true);
                 }
             });
             this.getView().byId("dynamicPageId").setShowFooter(bShowFooter);

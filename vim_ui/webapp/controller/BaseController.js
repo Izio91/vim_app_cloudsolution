@@ -173,6 +173,9 @@ sap.ui.define([
                 if(bFromInvoicesDetail){
                     this.onCancelPress();
                 } else {
+                    context.getView().byId("masterTable").removeSelections();
+                    context.getView().byId("dynamicPageId").setShowFooter(false);
+                    context.getView().byId("quickMassiveActionButton").setEnabled(false);
                     context.onGoPress();
                 }
             };
