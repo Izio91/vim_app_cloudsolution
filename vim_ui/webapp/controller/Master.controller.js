@@ -97,6 +97,7 @@ sap.ui.define([
                 var aCurrentData = oMasterModel.getProperty("/list");
                 var aNewData = aCurrentData.concat(oData.value[0].result);
                 oMasterModel.setProperty("/list", aNewData);
+                oMasterModel.setProperty("/count", oData.value[0].count);
                 sap.ui.core.BusyIndicator.hide();
                 return oData;
             };
