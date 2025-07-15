@@ -12,6 +12,7 @@ sap.ui.define([
     //manifest base URL
     var baseManifestUrl;
     var oBundle;
+    var aCSVHeaderIndexes;
 
     return BaseController.extend("vim_ui.controller.Master", {
         formatter: formatter,
@@ -25,6 +26,19 @@ sap.ui.define([
             oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             //set manifest base URL
             baseManifestUrl = jQuery.sap.getModulePath(this.getOwnerComponent().getMetadata().getManifest()["sap.app"].id);
+            aCSVHeaderIndexes = {
+                COMPANYCODE: 0,
+                DOC_STATUS: 1,
+                INVOICENUMBER: 2, 
+                DATA: 3,
+                IMPORTOTOTALEDOCUMENTO: 4,
+                CREATEDAT: 5,
+                VENDOR_NAME: 6,
+                VAT: 7,
+                ASSIGNEDTONAME: 8,
+                DOCCATEGORY: 9,
+                LASTCHANGEDON: 10
+            };
             this.oRouter = this.getOwnerComponent().getRouter();
             this.oRouter.getRoute("master").attachPatternMatched(this._onRouteMatched, this);
             this._bDescendingSort = false;
@@ -86,7 +100,7 @@ sap.ui.define([
             var sCreatedDateTo = oView.byId("idSentOn").getSecondDateValue();
 
             // Build query URL with parameters
-            var sUrl = this._buildFilterQuery(sDocStatus, sAssignedTo, sDocCategory, sVendor, sInvoiceNumber, sVAT, sDateFrom, sDateTo, sCreatedDateFrom, sCreatedDateTo);
+            var sUrl = this._buildFilterQuery(sDocStatus, sAssignedTo, sDocCategory, sVendor, sInvoiceNumber, sVAT, sDateFrom, sDateTo, sCreatedDateFrom, sCreatedDateTo, "/odata/extended()?", true);
 
             // Get the master model to update the data list after the request
             var oMasterModel = this.getView().getModel("masterModel");
@@ -115,8 +129,8 @@ sap.ui.define([
         /**
          * Helper method to build the query URL with the given parameters.
          */
-        _buildFilterQuery: function (sDocStatus, sAssignedTo, sDocCategory, sVendor, sInvoiceNumber, sVAT, sDateFrom, sDateTo, sCreatedDateFrom, sCreatedDateTo) {
-            var url = baseManifestUrl + "/odata/extended()?";
+        _buildFilterQuery: function (sDocStatus, sAssignedTo, sDocCategory, sVendor, sInvoiceNumber, sVAT, sDateFrom, sDateTo, sCreatedDateFrom, sCreatedDateTo, sUrl, bTopAndSkip) {
+            var url = baseManifestUrl + sUrl;
             var aParams = [];
 
             if (sDocStatus.length) {
@@ -144,8 +158,10 @@ sap.ui.define([
                 aParams.push("DATA=" + sDateFrom.toJSON() + "," + sDateTo.toJSON());
             }
 
-            aParams.push("$top=" + this._iTop);
-            aParams.push("$skip=" + this._iSkip);
+            if (bTopAndSkip) {
+                aParams.push("$top=" + this._iTop);
+                aParams.push("$skip=" + this._iSkip);
+            }
 
             return url + aParams.join("&");
         },
@@ -545,6 +561,118 @@ sap.ui.define([
                     }
                 }
             });
+        },
+
+        onExportCSV: function () {
+            var that = this;
+            MessageBox.information(oBundle.getText("ExportAlert"), {
+                actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                emphasizedAction: MessageBox.Action.YES,
+                onClose: function (sAction) {
+                    if (sAction === MessageBox.Action.YES) {
+                        that._confirmExportCSV();
+                    }
+                }
+            });
+        },
+        
+        _confirmExportCSV: async function () {
+            var sDocStatus = this.getView().byId("idSelectDocStatus").getSelectedKeys();
+            var sAssignedTo = this.getView().byId("idAssignedToInp").getValue();
+            var sDocCategory = this.getView().byId("idSelectDocumentCategory").getSelectedKey();
+            var sVendor = this.getView().byId("idSentByInp").getValue();
+            var sInvoiceNumber = this.getView().byId("idInvoiceNumber").getValue();
+            var sVAT = this.getView().byId("idVATRegistrationNumber").getValue();
+            var sDateFrom = this.getView().byId("idData").getDateValue();
+            var sDateTo = this.getView().byId("idData").getSecondDateValue();
+            var sCreatedDateFrom = this.getView().byId("idSentOn").getDateValue();
+            var sCreatedDateTo = this.getView().byId("idSentOn").getSecondDateValue();
+
+            // Build query URL with parameters
+            var sUrl = this._buildFilterQuery(sDocStatus, sAssignedTo, sDocCategory, sVendor, sInvoiceNumber, sVAT, sDateFrom, sDateTo, sCreatedDateFrom, sCreatedDateTo, "/odata/getDataForCSV()?", false);
+            var that = this;
+
+            sap.ui.core.BusyIndicator.show();
+            const oSuccessFunction = (oData) => {
+                let aResult = oData.value[0].result;
+                sap.ui.core.BusyIndicator.hide();
+                if (aResult.length > 0) {
+                    // Reorder each object based on the specified order
+                    const sortedResults = aResult.map(obj => {
+                        let sortedObj = {};
+                        Object.keys(aCSVHeaderIndexes).forEach(key => {
+                            sortedObj[key] = obj[key] !== undefined ? obj[key] : null; // Ensure all keys exist
+                        });
+                        return sortedObj;
+                    });
+                    let aHeaders = that.getColumnsCSV(Object.keys(sortedResults[0]));
+                    const csv = that.getCSV(aHeaders, sortedResults);
+                    // Create a Blob from the CSV
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", that.getFileName() + ".csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    MessageBox.information(oBundle.getText("NoDataDueCurrentFilters"));
+                }
+                return oData;
+            };
+
+            const oErrorFunction = (error) => {
+                sap.ui.core.BusyIndicator.hide();
+                let sErrorMessage = "";
+                if (error.status === 504) {
+                    sErrorMessage = oBundle.getText("ExportTimeoutError");
+                } else {
+                    sErrorMessage = oBundle.getText("ErrorReadingDataFromBackend");
+                }
+                console.log("Request failed:", error);
+                MessageBox.error(sErrorMessage);
+            };
+
+            return this.executeRequest(sUrl, 'GET', null, oSuccessFunction, oErrorFunction);
+        },
+
+        getColumnsCSV: function (oDataKeys) {
+            var aColumns = [];
+            oDataKeys.forEach((sKey) => {
+                aColumns[aCSVHeaderIndexes[sKey]] = { 'label': oBundle.getText(sKey), 'property': sKey };
+            });
+            return aColumns;
+        },
+
+        /**
+         * 
+         * @param {array of object} aHeader 
+         * @param {array of object} aGroupedData 
+         * @returns the csv content
+         */
+        getCSV: function (aHeader, aGroupedData) {
+            const sHeader = aHeader.map(oHeader => "\""+oHeader.label.replaceAll(',', ' ')+"\"").join(';');
+            return [sHeader, ...aGroupedData.map(row => Object.values(row).map((value) => {
+                if (typeof value === 'string') {
+                    value = String(value).replaceAll(",", " ");
+                }
+                return "\""+value+"\""
+            }).join(';'))].join('\r\n');
+        },
+
+        /**
+         * 
+         * @returns the excel file name
+         */
+        getFileName: function () {
+            const dDate = new Date(),
+                sYear = dDate.getFullYear().toString(),
+                sMonth = String(dDate.getMonth() + 1).padStart(2, 0),
+                sDay = String(dDate.getDate()).padStart(2, 0),
+                sHours = dDate.getHours().toString(),
+                sMinutes = dDate.getMinutes().toString();
+            return "Report_VIM_" + sDay + sMonth + sYear;
         }
     });
 });

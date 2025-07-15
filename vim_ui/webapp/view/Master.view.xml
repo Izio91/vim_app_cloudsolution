@@ -142,6 +142,7 @@
                             }"
                             level="H2"/>
                         <ToolbarSpacer/>
+                        <Button text="{i18n>ExportButton}" icon="sap-icon://excel-attachment" press="onExportCSV" tooltip="{i18n>ExportTooltip}"/>
                         <Button id="quickMassiveActionButton" icon="sap-icon://edit" text="{i18n>QuickMassiveEdit}" enabled="false" press="onQuickMassiveEditPress" tooltip="{i18n>MassiveActionTooltip}"/>
                     </OverflowToolbar>
                 </headerToolbar>
