@@ -5291,6 +5291,16 @@ sap.ui.define([
       delete oCurrentInvoice.To_SelectedDeliveryNotes;
       delete oCurrentInvoice.To_SelectedServiceEntrySheets;
       delete oCurrentInvoice.AmountSummary;
+      oCurrentInvoice.GLAccountRecords.forEach(record => {
+        delete record.IVA;
+        delete record.TaxAmount;
+        delete record.GrossAmount;
+      });
+      oCurrentInvoice.PORecords.forEach(record => {
+        delete record.IVA;
+        delete record.TaxAmount;
+        delete record.GrossAmount;
+      });
       // Build the request payload
       body = {
         payload: {
@@ -5407,6 +5417,16 @@ sap.ui.define([
       // Retrieve the current invoice data from the model
       var oCurrentInvoice = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice");
       delete oCurrentInvoice.AmountSummary;
+      oCurrentInvoice.GLAccountRecords.forEach(record => {
+        delete record.IVA;
+        delete record.TaxAmount;
+        delete record.GrossAmount;
+      });
+      oCurrentInvoice.PORecords.forEach(record => {
+        delete record.IVA;
+        delete record.TaxAmount;
+        delete record.GrossAmount;
+      });
       // Build the request payload
       body = {
         payload: {

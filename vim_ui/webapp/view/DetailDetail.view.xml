@@ -480,6 +480,24 @@
                                                                 <m:Input value="{detailDetailModel>TaxCode}" showValueHelp="true" valueHelpRequest="onTaxCodeVH" enabled="{detailDetailModel>/props/lineItemTable/editMode}" change=".onChangeTaxCode" maxLength="2"/>
                                                             </template>
                                                         </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>IVA}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>IVA}" enabled="false"/>
+                                                            </template>
+                                                        </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>TaxAmount}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>TaxAmount}" enabled="false"/>
+                                                            </template>
+                                                        </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>GrossAmount}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>GrossAmount}" enabled="false"/>
+                                                            </template>
+                                                        </Column>
                                                         <Column width="8rem" > 
                                                             <m:Label text="{i18n>SupplierInvoiceItemAmount}"/>
                                                             <template>
@@ -700,6 +718,24 @@
                                                             <m:Label text="{i18n>TaxCode}" />
                                                             <template>
                                                                 <m:Input value="{detailDetailModel>TaxCode}" showValueHelp="true" valueHelpRequest="onTaxCodeVH" maxLength="2" enabled="{detailDetailModel>/props/lineItemTable/editMode}" change=".onChangeTaxCode"/>
+                                                            </template>
+                                                        </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>IVA}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>IVA}" enabled="false"/>
+                                                            </template>
+                                                        </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>TaxAmount}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>TaxAmount}" enabled="false"/>
+                                                            </template>
+                                                        </Column>
+                                                        <Column width="8rem">
+                                                            <m:Label text="{i18n>GrossAmount}" />
+                                                            <template>
+                                                                <m:Input value="{detailDetailModel>GrossAmount}" enabled="false"/>
                                                             </template>
                                                         </Column>
                                                         <Column width="8rem">
