@@ -828,7 +828,7 @@ sap.ui.define([
         "QuantityInPurchaseOrderUnit": oData? oData.QuantityInPurchaseOrderUnit : null,
         "QtyInPurchaseOrderPriceUnit": null,
         "PurchaseOrderPriceUnit": null,
-        "SupplierInvoiceItemText": null,
+        "SupplierInvoiceItemText": oData? oData.SupplierInvoiceItemText : null,
         "IsNotCashDiscountLiable": null,
         "ServiceEntrySheet": oData? oData.ServiceEntrySheet : null,
         "ServiceEntrySheetItem": oData? oData.ServiceEntrySheetItem : null,
@@ -879,7 +879,7 @@ sap.ui.define([
         "SupplierInvoiceItem": null,
         "CompanyCode": null,
         "GLAccount": null,
-        "DebitCreditCode": this.getValueMappedToIsSubsequentDebitCredit(),
+        "DebitCreditCode": this.getValueMappedToDebitCreditCode(),
         "DocumentCurrency": this.getValueMappedToDocumentCurrency(),
         "SupplierInvoiceItemAmount": null,
         "TaxCode": null,
@@ -2165,25 +2165,18 @@ sap.ui.define([
       if (sValue) {
         var sFilter = new Filter({
           filters: [
-            new Filter("InboundDelivery", FilterOperator.Contains, sValue),
-            new Filter("InboundDeliveryItem", FilterOperator.Contains, sValue),
-            new Filter("CreatedByUser", FilterOperator.Contains, sValue),
-            new Filter("CreationDate", FilterOperator.Contains, sValue),
-            new Filter("CreationTime", FilterOperator.Contains, sValue),
-            new Filter("Supplier", FilterOperator.Contains, sValue),
+            new Filter("ReferenceDocument", FilterOperator.Contains, sValue),
+            new Filter("MaterialDocument", FilterOperator.Contains, sValue),
+            new Filter("MaterialDocumentItem", FilterOperator.Contains, sValue),
             new Filter("Material", FilterOperator.Contains, sValue),
-            new Filter("MaterialGroup", FilterOperator.Contains, sValue),
-            new Filter("MaterialFreightGroup", FilterOperator.Contains, sValue),
+            new Filter("ProductName", FilterOperator.Contains, sValue),
             new Filter("Plant", FilterOperator.Contains, sValue),
-            new Filter("DeliveryDocumentItemText", FilterOperator.Contains, sValue),
-            new Filter("ActualDeliveryQuantity", FilterOperator.Contains, sValue),
-            new Filter("OriginalDeliveryQuantity", FilterOperator.Contains, sValue),
-            new Filter("DeliveryQuantityUnit", FilterOperator.Contains, sValue),
-            new Filter("BaseUnit", FilterOperator.Contains, sValue),
-            new Filter("StockType", FilterOperator.Contains, sValue),
-            new Filter("CostCenter", FilterOperator.Contains, sValue),
-            new Filter("PurchaseOrder", FilterOperator.Contains, sValue),
-            new Filter("PurchaseOrderItem", FilterOperator.Contains, sValue)
+            new Filter("PostingDate", FilterOperator.Contains, sValue),
+            new Filter("DocumentDate", FilterOperator.Contains, sValue),
+            new Filter("CreationDate", FilterOperator.Contains, sValue),
+            new Filter("CreatedByUser", FilterOperator.Contains, sValue),
+            new Filter("Quantity", FilterOperator.Contains, sValue),
+            new Filter("PurchaseOrderQuantityUnit", FilterOperator.Contains, sValue)
           ]
         });
       }
@@ -2412,50 +2405,34 @@ sap.ui.define([
 
     onConfirmDeliveryNoteReferement: function (oEvent) {
       var sPath = oEvent.getParameter("selectedItem").getBindingContextPath("detailDetailModel");
-      var sInboundDeliveryRef = this.getView().getModel("detailDetailModel").getProperty(sPath + "/InboundDelivery");
-      var sPoRef = this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrder");
-      var sPoItemRef = this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrderItem");
-      this.oInputDeliveryNoteRefs.setValue(sInboundDeliveryRef);
-      this.oInputDeliveryNoteRefs.fireChangeEvent(sInboundDeliveryRef);
+      var sReferenceDocument = this.getView().getModel("detailDetailModel").getProperty(sPath + "/ReferenceDocument");
+      this.oInputDeliveryNoteRefs.setValue(sReferenceDocument);
+      this.oInputDeliveryNoteRefs.fireChangeEvent(sReferenceDocument);
 
-      var aURL = baseManifestUrl + "/odata/getPOAccountAssignment()?PurchaseOrderRef=" + sPoRef + "&PurchaseOrderItemRef=" + sPoItemRef;
+      var aURL = baseManifestUrl + "/odata/getDeliveryNoteRef()?ReferenceDocument=" + sReferenceDocument;
       this.getView().byId('DDPage').setBusy(true);
 
       const oSuccessFunction = (data) => {
-        let retrievedData = data.value[0].result[0];
+        let aRetrievedData = data.value[0]?.result;
         this.getView().byId('DDPage').setBusy(false);
-        if (retrievedData) {
-          let oData = {
-            "PurchaseOrder": this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrder"),
-            "PurchaseOrderItem": this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrderItem"),
-            "Plant": this.getView().getModel("detailDetailModel").getProperty(sPath + "/Plant"),
-            "PurchaseOrderQuantityUnit": this.getView().getModel("detailDetailModel").getProperty(sPath + "/DeliveryQuantityUnit"),
-            "QuantityInPurchaseOrderUnit": this.getView().getModel("detailDetailModel").getProperty(sPath + "/ActualDeliveryQuantity"),
-            "ReferenceDocument": retrievedData.ReferenceDocument != "" ? retrievedData.ReferenceDocument : null,
-            "ReferenceDocumentFiscalYear": retrievedData.ReferenceDocumentFiscalYear != "" ? retrievedData.ReferenceDocumentFiscalYear : null,
-            "ReferenceDocumentItem": retrievedData.ReferenceDocumentItem != "" ? retrievedData.ReferenceDocumentItem : null,
-            "CostCenter": retrievedData.CostCenter != "" ? retrievedData.CostCenter : null,
-            "ControllingArea": retrievedData.ControllingArea != "" ? retrievedData.ControllingArea : null,
-            "BusinessArea": retrievedData.BusinessArea != "" ? retrievedData.BusinessArea : null,
-            "ProfitCenter": retrievedData.ProfitCenter != "" ? retrievedData.ProfitCenter : null,
-            "FunctionalArea": retrievedData.FunctionalArea != "" ? retrievedData.FunctionalArea : null,
-            "WBSElement": retrievedData.WBSElementInternalID_2 != "" ? retrievedData.WBSElementInternalID_2 : null,
-            "SalesOrder": retrievedData.SalesOrder != "" ? retrievedData.SalesOrder : null,
-            "SalesOrderItem": retrievedData.SalesOrderItem != "" ? retrievedData.SalesOrderItem : null,
-            "InternalOrder": retrievedData.OrderInternalID != "" ? retrievedData.OrderInternalID : null,
-            "CommitmentItem": retrievedData.CommitmentItemShortID != "" ? retrievedData.CommitmentItemShortID : null,
-            "FundsCenter": retrievedData.FundsCenter != "" ? retrievedData.FundsCenter : null,
-            "Fund": retrievedData.Fund != "" ? retrievedData.Fund : null,
-            "GrantID": retrievedData.GrantID != "" ? retrievedData.GrantID : null,
-            "ProfitabilitySegment": retrievedData.ProfitabilitySegment_2 != "" ? retrievedData.ProfitabilitySegment_2 : null,
-            "BudgetPeriod": retrievedData.BudgetPeriod != "" ? retrievedData.BudgetPeriod : null,
-          };
-          // this._addPORow(oData);
-          aNewSelectedDeliveryNotesRecords.push(oData);
+        if (aRetrievedData.length > 0) {
+          aRetrievedData.forEach(retrievedData => {
+            let oData = {
+              "PurchaseOrder": retrievedData.PurchaseOrder_1.padStart(5, "0"),
+              "PurchaseOrderItem": retrievedData.PurchaseOrderItem_1.padStart(5, "0"),
+              "Plant": retrievedData.Plant,
+              "QuantityInPurchaseOrderUnit": retrievedData.Quantity,
+              "PurchaseOrderQuantityUnit": retrievedData.PurchaseOrderQuantityUnit,
+              "SupplierInvoiceItemText": retrievedData.ProductName,
+              "SupplierInvoiceItemAmount": retrievedData.PurchaseOrderAmount
+            };
+            // this._addPORow(oData);
+            aNewSelectedDeliveryNotesRecords.push(oData);
+          })  
         } else {
           MessageBox.warning(oBundle.getText("NoDataFoundForPurchaseOrderAndPurchaseOrderItem", [this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrder"), this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrderItem")]));
         }
-      }
+      };
 
       const oErrorFunction = (XMLHttpRequest, textStatus, errorThrown) => {
         this.getView().byId('DDPage').setBusy(false);
@@ -4879,22 +4856,58 @@ sap.ui.define([
       var sKey = oEvent.getParameters().selectedItem.getKey();
       this.getView().getModel("detailDetailModel").setProperty("/currentInvoice/Transaction", sKey);
       this.setIsSubsequentDebitCredit(sKey);
+      this.setDebitCreditCode(sKey);
+      this.setSupplierInvoiceIsCreditMemo(sKey);
     },
 
     setIsSubsequentDebitCredit: function (sKey) {
       let aPORecords = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice/PORecords");
-      let aGLAccountRecords = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice/GLAccountRecords");
       aPORecords = aPORecords.map(oRecord => {
         oRecord.IsSubsequentDebitCredit = this.getValueMappedToIsSubsequentDebitCredit(sKey);
         return oRecord;
       });
       this.getView().getModel("detailDetailModel").setProperty("/currentInvoice/PORecords", aPORecords);
+    },
+
+    setDebitCreditCode: function (sKey) {
+      let aGLAccountRecords = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice/GLAccountRecords");
 
       aGLAccountRecords = aGLAccountRecords.map(oRecord => {
-        oRecord.DebitCreditCode = this.getValueMappedToIsSubsequentDebitCredit(sKey);
+        oRecord.DebitCreditCode = this.getValueMappedToDebitCreditCode(sKey);
         return oRecord;
       });
       this.getView().getModel("detailDetailModel").setProperty("/currentInvoice/GLAccountRecords", aGLAccountRecords);
+    },
+
+    setSupplierInvoiceIsCreditMemo: function (sKey) {
+      const dDocumentDate = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice/DocumentDate");
+      let sSupplierInvoiceIsCreditMemo = "";
+      let oItem = this.getView().byId("idTransaction").getSelectedItem();
+      if (!sKey) {
+        sKey = oItem? oItem.getKey(): null;
+      }
+
+      switch (sKey) {
+        case "Invoice":
+          sSupplierInvoiceIsCreditMemo = "";
+          break;
+        case "Subsequentdebit":
+          sSupplierInvoiceIsCreditMemo = "";
+          break;
+        case "Creditmemo":
+          sSupplierInvoiceIsCreditMemo = "X";
+          break;
+        case "Subsequentcredit":
+          sSupplierInvoiceIsCreditMemo = "X";
+          break;
+        default:
+          sSupplierInvoiceIsCreditMemo = "";
+      }
+      this.getView().getModel("detailDetailModel").setProperty("/currentInvoice/SupplierInvoiceIsCreditMemo", sSupplierInvoiceIsCreditMemo);
+
+      if (sSupplierInvoiceIsCreditMemo === "X") {
+        this.getView().getModel("detailDetailModel").setProperty("/currentInvoice/DueCalculationBaseDate", dDocumentDate);
+      }
     },
 
     getValueMappedToIsSubsequentDebitCredit: function (sKey) {
@@ -4912,6 +4925,26 @@ sap.ui.define([
           return "X"
         default:
           return "X";
+      }
+    },
+
+    getValueMappedToDebitCreditCode: function (sKey) {
+      let oItem = this.getView().byId("idTransaction").getSelectedItem();
+      if (!sKey) {
+        sKey = oItem? oItem.getKey(): null;
+      }
+
+      switch (sKey) {
+        case "Invoice":
+          return "S"
+        case "Subsequentdebit":
+          return "S"
+        case "Creditmemo":
+          return "H"
+        case "Subsequentcredit":
+          return "H"
+        default:
+          return "S";
       }
     },
 

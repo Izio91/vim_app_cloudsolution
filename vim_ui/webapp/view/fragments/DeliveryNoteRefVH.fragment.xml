@@ -10,51 +10,36 @@
         <ColumnListItem vAlign="Middle">
             <cells>
                 <ObjectIdentifier
-                    title="{detailDetailModel>InboundDelivery}"/>
+                    title="{detailDetailModel>ReferenceDocument}"/>
                 <Text
-                    text="{detailDetailModel>InboundDeliveryItem}" />
+                    text="{detailDetailModel>MaterialDocument}" />
                 <Text
-                    text="{detailDetailModel>CreatedByUser}" />
-                <Text
-                    text="{detailDetailModel>CreationDate}" />
-                <Text
-                    text="{detailDetailModel>CreationTime}" />
-                <Text
-                    text="{detailDetailModel>Supplier}" />
+                    text="{detailDetailModel>MaterialDocumentItem}" />
                 <Text
                     text="{detailDetailModel>Material}" />
                 <Text
-                    text="{detailDetailModel>MaterialGroup}" />
-                <Text
-                    text="{detailDetailModel>MaterialFreightGroup}" />
+                    text="{detailDetailModel>ProductName}" />
                 <Text
                     text="{detailDetailModel>Plant}" />
                 <Text
-                    text="{detailDetailModel>DeliveryDocumentItemText}" />
+                    text="{detailDetailModel>PostingDate}" />
                 <Text
-                    text="{detailDetailModel>ActualDeliveryQuantity}" />
+                    text="{detailDetailModel>DocumentDate}" />
                 <Text
-                    text="{detailDetailModel>OriginalDeliveryQuantity}" />
+                    text="{detailDetailModel>CreationDate}" />
                 <Text
-                    text="{detailDetailModel>DeliveryQuantityUnit}" />
+                    text="{detailDetailModel>CreatedByUser}" />
                 <Text
-                    text="{detailDetailModel>BaseUnit}" />
+                    text="{detailDetailModel>Quantity}" />
                 <Text
-                    text="{detailDetailModel>StockType}" />
-                <Text
-                    text="{detailDetailModel>IsCompletelyDelivered}" />
-                <Text
-                    text="{detailDetailModel>CostCenter}" />
-                <Text
-                    text="{detailDetailModel>PurchaseOrder}" />
-                <Text
-                    text="{detailDetailModel>PurchaseOrderItem}" />
+                    text="{detailDetailModel>PurchaseOrderQuantityUnit}" />
+                
             </cells>
         </ColumnListItem>
 		<columns>
 			<Column width="12em">
 				<header>
-					<Text text="{i18n>To_SelectedDeliveryNotes_InboundDeliveryNote}" />
+					<Text text="{i18n>ReferenceDocument}" />
 				</header>
 			</Column>
 			<Column
@@ -62,7 +47,7 @@
 				demandPopin="true"
 				hAlign="End">
 				<header>
-					<Text text="{i18n>To_SelectedDeliveryNotes_InboundDeliveryNoteItem}" />
+					<Text text="{i18n>MaterialDocument}" />
 				</header>
 			</Column>
 			<Column
@@ -70,22 +55,7 @@
 				demandPopin="true"
 				hAlign="Center">
 				<header>
-					<Text text="{i18n>CreatedByUser}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>CreationDate}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>CreationTime}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>Supplier}" />
+					<Text text="{i18n>MaterialDocumentItem}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
@@ -95,12 +65,7 @@
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>MaterialGroup}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>MaterialFreightGroup}" />
+					<Text text="{i18n>ProductName}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
@@ -110,52 +75,32 @@
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>DeliveryDocumentItemText}" />
+					<Text text="{i18n>PostingDate}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>ActualDeliveryQuantity}" />
+					<Text text="{i18n>DocumentDate}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>OriginalDeliveryQuantity}" />
+					<Text text="{i18n>CreationDate}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>DeliveryQuantityUnit}" />
+					<Text text="{i18n>CreatedByUser}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>BaseUnit}" />
+					<Text text="{i18n>Quantity}" />
 				</header>
 			</Column>
 			<Column hAlign="End">
 				<header>
-					<Text text="{i18n>StockType}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>IsCompletelyDelivered}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>CostCenter}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>PurchaseOrder}" />
-				</header>
-			</Column>
-			<Column hAlign="End">
-				<header>
-					<Text text="{i18n>PurchaseOrderItem}" />
+					<Text text="{i18n>PurchaseOrderQuantityUnit}" />
 				</header>
 			</Column>
 		</columns>
