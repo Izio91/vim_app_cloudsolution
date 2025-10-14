@@ -1,5 +1,6 @@
 sap.ui.define([
     "./BaseController",
+	'sap/ui/Device',
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Sorter",
     "sap/m/MessageToast",
@@ -7,11 +8,13 @@ sap.ui.define([
     "sap/ui/core/Fragment",
     "sap/ui/core/ValueState",
     "vim_ui/utils/formatter"
-], function (BaseController, JSONModel, Sorter, MessageToast, MessageBox, Fragment, ValueState, formatter) {
+], function (BaseController, Device, JSONModel, Sorter, MessageToast, MessageBox, Fragment, ValueState, formatter) {
     "use strict";
     //manifest base URL
     var baseManifestUrl;
     var oBundle;
+    var sOrderByField;
+    var bSortDescending;
 
     return BaseController.extend("vim_ui.controller.Master", {
         formatter: formatter,
@@ -25,9 +28,10 @@ sap.ui.define([
             oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
             //set manifest base URL
             baseManifestUrl = jQuery.sap.getModulePath(this.getOwnerComponent().getMetadata().getManifest()["sap.app"].id);
+            sOrderByField = "LASTCHANGEDON";
+            bSortDescending = true;
             this.oRouter = this.getOwnerComponent().getRouter();
             this.oRouter.getRoute("master").attachPatternMatched(this._onRouteMatched, this);
-            this._bDescendingSort = false;
         },
 
         /**
@@ -67,6 +71,35 @@ sap.ui.define([
             this._loadData();
         },
 
+		_getViewSettingsDialog: function (oEvent) {
+            var oControl = oEvent.getSource(),
+                oView = this.getView();
+
+			if (!this._mViewSettingsDialog) {
+				Fragment.load({
+					id: oView.getId(),
+					name: "vim_ui.view.fragments.SortDialog",
+					controller: this
+				}).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    this._mViewSettingsDialog = oDialog;
+                    oDialog.open();
+				}.bind(this));
+			} else {
+                this._mViewSettingsDialog.open();
+            }
+		},
+
+		onSortButtonPressed: function (oEvent) {
+			this._getViewSettingsDialog(oEvent);
+		},
+
+		handleSortDialogConfirm: function (oEvent) {
+			var mParams = oEvent.getParameters();
+
+			sOrderByField = mParams.sortItem.getKey();
+			bSortDescending = mParams.sortDescending;
+		},
 
         /**
          * Load data with current filters and pagination parameters.
@@ -144,6 +177,8 @@ sap.ui.define([
                 aParams.push("DATA=" + sDateFrom.toJSON() + "," + sDateTo.toJSON());
             }
 
+            aParams.push("orderBy=" + sOrderByField);
+            aParams.push("descending=" + bSortDescending);
             aParams.push("$top=" + this._iTop);
             aParams.push("$skip=" + this._iSkip);
 
@@ -397,20 +432,6 @@ sap.ui.define([
                 return
             }
             this.onAssignPress();
-        },
-
-        /**
-         * Event handler for sorting the table by the "Name" column.
-         * It toggles between ascending and descending order.
-         */
-        onSort: function (oEvent) {
-            this._bDescendingSort = !this._bDescendingSort;
-            var oView = this.getView(),
-                oTable = oView.byId("productsTable"),
-                oBinding = oTable.getBinding("items"),
-                oSorter = new Sorter("Name", this._bDescendingSort);
-
-            oBinding.sort(oSorter);
         },
 
 

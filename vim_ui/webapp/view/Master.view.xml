@@ -116,8 +116,7 @@
                 id="masterTable"
                 inset="false"
                 items="{
-                    path: 'masterModel>/list',
-                    sorter: { path: 'LASTCHANGEDON', descending: true }
+                    path: 'masterModel>/list'
                 }"
                 growing="true"
                 growingScrollToLoad="true"
@@ -142,6 +141,10 @@
                             }"
                             level="H2"/>
                         <ToolbarSpacer/>
+					    <Button
+                            tooltip="Sort"
+                            icon="sap-icon://sort"
+                            press="onSortButtonPressed"/>
                         <Button id="quickMassiveActionButton" icon="sap-icon://edit" text="{i18n>QuickMassiveEdit}" enabled="false" press="onQuickMassiveEditPress" tooltip="{i18n>MassiveActionTooltip}"/>
                     </OverflowToolbar>
                 </headerToolbar>

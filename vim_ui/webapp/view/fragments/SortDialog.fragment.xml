@@ -1,0 +1,15 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<ViewSettingsDialog
+		id="idSorterDialog"
+		confirm="handleSortDialogConfirm">
+		<sortItems>
+			<ViewSettingsItem text="{i18n>LastChanged}" key="LASTCHANGEDON" selected="true" />
+			<ViewSettingsItem text="{i18n>InvoiceNumber}" key="INVOICENUMBER" />
+			<ViewSettingsItem text="{i18n>Data}" key="DATA" />
+			<ViewSettingsItem text="{i18n>VendorNameColumn}" key="VENDOR_NAME" />
+			<ViewSettingsItem text="{i18n>VATRegistrationNumberColumn}" key="VAT" />
+		</sortItems>
+	</ViewSettingsDialog>
+</core:FragmentDefinition>
