@@ -76,20 +76,6 @@
                 "status": null
             },
             {
-                "id": "NONPOINV",
-                "status": "Non-PO Invoice"
-            },
-            {
-                "id": "POINV",
-                "status": "PO Invoice"
-            }
-        ],
-        "DocumentCategoryOld": [
-            {
-                "id": null,
-                "status": null
-            },
-            {
                 "id": "POCREDM",
                 "status": "PO Credit Memo"
             },
