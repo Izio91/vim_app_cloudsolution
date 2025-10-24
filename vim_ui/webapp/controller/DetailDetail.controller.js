@@ -624,14 +624,43 @@ sap.ui.define([
     },
 
     onAddTo_SelectedDeliveryNotesRow: function (oEvent) {
-      var oDetailDetailModel = this.getView().getModel("detailDetailModel"),
-        oCurrentInvoice = oDetailDetailModel.getProperty("/currentInvoice");
-      // Retrieve the PORecords data from the model
-      var aTo_SelectedDeliveryNotes = oDetailDetailModel.getProperty("/currentInvoice/To_SelectedDeliveryNotes");
-      aTo_SelectedDeliveryNotes.push({
-        "InboundDeliveryNote": null
-      });
-      oDetailDetailModel.setProperty("/currentInvoice/To_SelectedDeliveryNotes", aTo_SelectedDeliveryNotes);
+      this.oInputDeliveryNoteRefs = oEvent.getSource(); // da rimuovere
+      var oView = this.getView();
+      var sConsistentValue = this._checkConsistencyOfPreparatoryValue("/currentInvoice/InvoicingParty", oBundle.getText("MissingInputError", [oBundle.getText("InvoicingParty")]));
+      if (!sConsistentValue) {
+        return;
+      }
+      var sSupplier = sConsistentValue;
+      var aURL = baseManifestUrl + "/odata/getDeliveryNoteRef()?Supplier=" + sSupplier;
+      var oDetailDetailModel = this.getView().getModel("detailDetailModel");
+      this.getView().byId('DDPage').setBusy(true);
+
+      const oSuccessFunction = (data) => {
+        oDetailDetailModel.setProperty("/valuehelps/deliveryNoteReferements", data.value[0].result)
+        this.getView().byId('DDPage').setBusy(false);
+        if (!this.getView().byId("idDeliveryNoteRefDialog_VH")) {
+          Fragment.load({
+            id: oView.getId(),
+            name: "vim_ui.view.fragments.DeliveryNoteRefVH",
+            controller: this
+          }).then(function (oDialog) {
+            oView.addDependent(oDialog);
+            oDialog.open();
+          });
+        } else {
+          this.getView().byId("idDeliveryNoteRefDialog_VH").open();
+        }
+      }
+
+      const oErrorFunction = (XMLHttpRequest, textStatus, errorThrown) => {
+        this.getView().byId('DDPage').setBusy(false);
+        let sMsg = oBundle.getText("UnexpectedErrorOccurred");
+        MessageToast.show(sMsg);
+        console.log(errorThrown);
+      };
+
+      return this.executeRequest(aURL, 'GET', null, oSuccessFunction, oErrorFunction);
+      
     },
 
     onAddTo_SelectedServiceEntrySheetsRow: function (oEvent) {
@@ -1771,47 +1800,6 @@ sap.ui.define([
 
       return this.executeRequest(aURL, 'GET', null, oSuccessFunction, oErrorFunction);
     },
-    
-
-    //Delivery Note referements
-    onDeliveryNoteRefVH: function (oEvent) {
-      this.oInputDeliveryNoteRefs = oEvent.getSource();
-      var oView = this.getView();
-      var sConsistentValue = this._checkConsistencyOfPreparatoryValue("/currentInvoice/InvoicingParty", oBundle.getText("MissingInputError", [oBundle.getText("InvoicingParty")]));
-      if (!sConsistentValue) {
-        return;
-      }
-      var sSupplier = sConsistentValue;
-      var aURL = baseManifestUrl + "/odata/getDeliveryNoteRef()?Supplier=" + sSupplier;
-      var oDetailDetailModel = this.getView().getModel("detailDetailModel");
-      this.getView().byId('DDPage').setBusy(true);
-
-      const oSuccessFunction = (data) => {
-        oDetailDetailModel.setProperty("/valuehelps/deliveryNoteReferements", data.value[0].result)
-        this.getView().byId('DDPage').setBusy(false);
-        if (!this.getView().byId("idDeliveryNoteRefDialog_VH")) {
-          Fragment.load({
-            id: oView.getId(),
-            name: "vim_ui.view.fragments.DeliveryNoteRefVH",
-            controller: this
-          }).then(function (oDialog) {
-            oView.addDependent(oDialog);
-            oDialog.open();
-          });
-        } else {
-          this.getView().byId("idDeliveryNoteRefDialog_VH").open();
-        }
-      }
-
-      const oErrorFunction = (XMLHttpRequest, textStatus, errorThrown) => {
-        this.getView().byId('DDPage').setBusy(false);
-        let sMsg = oBundle.getText("UnexpectedErrorOccurred");
-        MessageToast.show(sMsg);
-        console.log(errorThrown);
-      };
-
-      return this.executeRequest(aURL, 'GET', null, oSuccessFunction, oErrorFunction);
-    },
 
     //Service entry sheet referements
     onServiceEntrySheetRefVH: function (oEvent) {
@@ -2404,12 +2392,17 @@ sap.ui.define([
     },
 
     onConfirmDeliveryNoteReferement: function (oEvent) {
-      var sPath = oEvent.getParameter("selectedItem").getBindingContextPath("detailDetailModel");
-      var sReferenceDocument = this.getView().getModel("detailDetailModel").getProperty(sPath + "/ReferenceDocument");
-      this.oInputDeliveryNoteRefs.setValue(sReferenceDocument);
-      this.oInputDeliveryNoteRefs.fireChangeEvent(sReferenceDocument);
+      var that = this;
+      var aSelectedItems = oEvent.getParameter("selectedItems");
+      var aPath = aSelectedItems.map((item) => item.getBindingContextPath("detailDetailModel"));
+      var aReferenceDocument = aPath.map((sPath) => that.getView().getModel("detailDetailModel").getProperty(sPath + "/ReferenceDocument"));
+      const body = {
+        payload: {
+          References: aReferenceDocument
+        }
+      };
 
-      var aURL = baseManifestUrl + "/odata/getDeliveryNoteRef()?ReferenceDocument=" + sReferenceDocument;
+      var aURL = baseManifestUrl + "/odata/getMassiveDeliveryNoteRef";
       this.getView().byId('DDPage').setBusy(true);
 
       const oSuccessFunction = (data) => {
@@ -2428,7 +2421,14 @@ sap.ui.define([
             };
             // this._addPORow(oData);
             aNewSelectedDeliveryNotesRecords.push(oData);
-          })  
+          });
+          var oDetailDetailModel = this.getView().getModel("detailDetailModel");
+          // Retrieve the PORecords data from the model
+          var aTo_SelectedDeliveryNotes = oDetailDetailModel.getProperty("/currentInvoice/To_SelectedDeliveryNotes");
+          var aNewTo_SelectedDeliveryNotes = aReferenceDocument.map((sReferenceDocument) => ({
+            "InboundDeliveryNote": sReferenceDocument
+            }));
+          oDetailDetailModel.setProperty("/currentInvoice/To_SelectedDeliveryNotes", aTo_SelectedDeliveryNotes.concat(aNewTo_SelectedDeliveryNotes));  
         } else {
           MessageBox.warning(oBundle.getText("NoDataFoundForPurchaseOrderAndPurchaseOrderItem", [this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrder"), this.getView().getModel("detailDetailModel").getProperty(sPath + "/PurchaseOrderItem")]));
         }
@@ -2441,7 +2441,7 @@ sap.ui.define([
         console.log(errorThrown);
       };
 
-      return this.executeRequest(aURL, 'GET', null, oSuccessFunction, oErrorFunction);
+      return this.executeRequest(aURL, 'POST', JSON.stringify(body), oSuccessFunction, oErrorFunction);
     },
 
 

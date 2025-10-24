@@ -2,6 +2,8 @@
 	<TableSelectDialog 
 		id="idDeliveryNoteRefDialog_VH" 
         resizable="true"
+		draggable="true"
+		multiSelect="true"
 		noDataText="{i18n>NoDeliveryNoteRefFound}"
 		items="{path: 'detailDetailModel>/valuehelps/deliveryNoteReferements'}"
 		title="{i18n>TitleSearchDeliveryNoteReferements}"
