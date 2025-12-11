@@ -1,6 +1,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:core="sap.ui.core">
 	<TableSelectDialog 
 		id="idPoItemRefDialog_VH" 
+		draggable="true" 
         resizable="true"
 		noDataText="{i18n>NoPoItemReferementsFound}"
 		items="{path: 'detailDetailModel>/valuehelps/poItemReferements'}"
