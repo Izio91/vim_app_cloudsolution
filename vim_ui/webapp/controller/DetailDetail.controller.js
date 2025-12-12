@@ -5184,6 +5184,23 @@ sap.ui.define([
       this._onChangeEventHandler(oEvent, "/TaxCode");
     },
 
+    onChangeMassiveTaxCode: function (oEvent) {
+      var oControl = oEvent.getSource(),
+        sValue = this._getControlValue(oControl),
+        oCurrentInvoice = this.getView().getModel("detailDetailModel").getProperty("/currentInvoice");
+        
+        if (sValue === "") {
+          sValue = null;
+        }
+        oCurrentInvoice.PORecords.forEach(oRecord => {
+          oRecord.TaxCode = sValue;
+        });
+        oCurrentInvoice.GLAccountRecords.forEach(oRecord => {
+          oRecord.TaxCode = sValue;
+        });
+        this.getView().getModel("detailDetailModel").setProperty("/currentInvoice", oCurrentInvoice);
+    },
+
     onChangeSupplierInvoiceItemAmount: function (oEvent) {
       this._onChangeEventHandler(oEvent, "/SupplierInvoiceItemAmount");
     },

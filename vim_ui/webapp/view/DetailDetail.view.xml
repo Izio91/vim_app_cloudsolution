@@ -473,6 +473,10 @@
 
                                 <l:BlockLayoutRow>
                                     <l:BlockLayoutCell>
+                                    <m:VBox>
+                                        <m:Label text="{i18n>DefaultTaxCode}"/>
+                                        <m:Input showValueHelp="true" valueHelpRequest="onTaxCodeVH" enabled="{detailDetailModel>/props/lineItemTable/editMode}" change=".onChangeMassiveTaxCode" maxLength="2" width="25%"/>
+                                    </m:VBox>
                                      <m:IconTabBar id="iconTabBarBodyInvoice" applyContentPadding="false" class="sapUiNoContentPadding" expandable="false">
                                         <m:items>
                                             <m:IconTabFilter text="{i18n>PurchaseOrder}" count="{= ${detailDetailModel>/currentInvoice/PORecords/length}}">
